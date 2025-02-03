@@ -21,11 +21,9 @@ const SignUpPage = () => {
         try {
             setLoading(true);
             const response = await axios.post("/api/users/signup", user);
-            console.log(response.data);
             toast.success(response.data.message);
             router.push("/login");
         } catch (error: any) {
-            console.log("Signup failed", error.message);
             toast.error(error.message);
             setLoading(false);
         } finally {
@@ -91,8 +89,9 @@ const SignUpPage = () => {
                 <button
                     className="p-2 w-full bg-blue-500 text-white rounded-lg mb-4 hover:bg-blue-600 transition"
                     onClick={onSignup}
+                    disabled={buttonDisable}
                 >
-                    {buttonDisable ? "Pleas enter credential" : "Sign Up"}
+                    {buttonDisable ? "Please enter credential" : "Sign Up"}
                 </button>
                 <div>
                     <span>Do you have an account? </span>

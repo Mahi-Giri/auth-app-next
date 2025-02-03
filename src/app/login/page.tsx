@@ -2,14 +2,41 @@
 
 import React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import axios from "axios";
+import toast from "react-hot-toast";
 
 const LoginPage = () => {
+    const route = useRouter();
+
     const [user, setUser] = React.useState({
         email: "",
         password: "",
     });
 
-    const onLogin = async () => {};
+    const [buttonDisable, setButtonDisable] = React.useState(false);
+    const [loading, setLoading] = React.useState(false);
+
+    const onLogin = async () => {
+        try {
+            setLoading(true);
+            const response = await axios.post("/api/users/login", user);
+            toast.success(response.data.message || "Login successful!");
+            route.push("/dashboard");
+        } catch (error: any) {
+            toast.error(error?.response?.data?.message || "Something went wrong!");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    React.useEffect(() => {
+        if (user.email.length > 0 && user.password.length > 0) {
+            setButtonDisable(false);
+        } else {
+            setButtonDisable(true);
+        }
+    }, [user]);
 
     return (
         <div
@@ -20,7 +47,7 @@ const LoginPage = () => {
             }}
         >
             <div className="bg-white bg-opacity-80 p-8 rounded-lg shadow-lg opacity-70 w-[28%]">
-                <h1 className="text-2xl font-bold mb-4">Login</h1>
+                <h1 className="text-2xl font-bold mb-4">{loading ? "Loading..." : "Login"}</h1>
 
                 <label htmlFor="email" className="block mb-1">
                     Email
@@ -49,8 +76,9 @@ const LoginPage = () => {
                 <button
                     className="p-2 w-full bg-blue-500 text-white rounded-lg mb-4 hover:bg-blue-600 transition"
                     onClick={onLogin}
+                    disabled={buttonDisable}
                 >
-                    Login
+                    {buttonDisable ? "Please enter credential" : "Login"}
                 </button>
 
                 <div>

@@ -17,7 +17,17 @@ const SignUpPage = () => {
     const [buttonDisable, setButtonDisable] = React.useState(false);
     const [loading, setLoading] = React.useState(false);
 
+    const validateEmail = (email: string) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    };
+
     const onSignup = async () => {
+        if (!validateEmail(user.email)) {
+            toast.error("Enter valid email Format");
+            return;
+        }
+
         try {
             setLoading(true);
             const response = await axios.post("/api/users/signup", user);
@@ -25,14 +35,18 @@ const SignUpPage = () => {
             router.push("/login");
         } catch (error: any) {
             toast.error(error.message);
-            setLoading(false);
         } finally {
             setLoading(false);
         }
     };
 
     React.useEffect(() => {
-        if (user.email.length > 0 && user.password.length > 0 && user.username.length > 0) {
+        if (
+            user.email.length > 0 &&
+            validateEmail(user.email) &&
+            user.password.length > 0 &&
+            user.username.length > 0
+        ) {
             setButtonDisable(false);
         } else {
             setButtonDisable(true);
@@ -66,13 +80,16 @@ const SignUpPage = () => {
                     Email
                 </label>
                 <input
-                    className="p-2 w-full border border-gray-300 rounded-lg mb-4 focus:outline-none focus:border-gray-600"
+                    className="p-2 w-full border border-gray-300 rounded-lg mb-2 focus:outline-none focus:border-gray-600"
                     id="email"
                     type="email"
                     value={user.email}
                     onChange={(e) => setUser({ ...user, email: e.target.value })}
                     placeholder="Email"
                 />
+                {user.email && !validateEmail(user.email) && (
+                    <p className="text-red-500 text-sm mb-2">Enter valid email Format</p>
+                )}
 
                 <label htmlFor="password" className="block mb-1">
                     Password
@@ -87,11 +104,11 @@ const SignUpPage = () => {
                 />
 
                 <button
-                    className="p-2 w-full bg-blue-500 text-white rounded-lg mb-4 hover:bg-blue-600 transition"
+                    className="p-2 w-full bg-blue-500 text-white rounded-lg mb-4 hover:bg-blue-600 transition disabled:bg-gray-400"
                     onClick={onSignup}
                     disabled={buttonDisable}
                 >
-                    {buttonDisable ? "Please enter credential" : "Sign Up"}
+                    {buttonDisable ? "Please enter valid details" : "Sign Up"}
                 </button>
                 <div>
                     <span>Do you have an account? </span>

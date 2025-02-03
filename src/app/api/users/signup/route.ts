@@ -9,18 +9,12 @@ export async function POST(request: NextRequest) {
     try {
         const reqBody = await request.json();
         const { username, password, email } = reqBody;
-        
-        console.log(reqBody);
-        
 
         const userExist = await User.findOne({ email });
         if (userExist) return NextResponse.json({ error: "User already exists" }, { status: 400 });
 
         const salt = await bcryptjs.genSalt(10);
         const hashedPassword = await bcryptjs.hash(password, salt);
-
-        
-        
 
         const newUser = new User({
             username,
@@ -29,11 +23,14 @@ export async function POST(request: NextRequest) {
         });
 
         const savedUser = await newUser.save();
+
+        const { password: userPassword, ...user } = savedUser._doc;
+
         return NextResponse.json(
             {
                 message: "User registered successfully",
                 success: true,
-                savedUser,
+                user,
             },
             { status: 201 }
         );
